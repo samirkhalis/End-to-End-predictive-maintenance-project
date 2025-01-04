@@ -2,7 +2,7 @@
 
 A comprehensive data pipeline and analytics system for industrial machine monitoring, predictive maintenance, and real-time data processing. The system includes real-time data ingestion, processing, storage, analytics, and a chatbot interface for user interaction.
 
-![Project Architecture](.Architecture.png)
+![Project Architecture](./Architecture.png)
 
 ## Table of Contents
 - [Features](#features)
