@@ -139,7 +139,7 @@ Models implemented:
 
 ## Screenshots
 ![Interface Screenshot](./interface-1.png)
-![Interface Screenshot](./interface-1-prediction.png)
+![Interface Screenshot](./inetrface-1-prediction.png)
 ![Chatbot Interface Screenshot](./interface-2.png)
 
 ## Contributing
