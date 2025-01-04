@@ -1,6 +1,8 @@
 # ENSAB Academic Project : Industrial Machine Monitoring and Predictive Maintenance System using Big Data Tools and Machine Learning
 
-This Academic project is an end to end real time pipeline for industrial machine monitoring, predictive maintenance, and real-time data processing. The system includes real-time data ingestion, processing, storage, analytics, and a chatbot interface for user interaction.
+This Academic project is an end to end Real Time Data Engineering Pipeline for industrial machine monitoring, predictive maintenance, and real-time data processing. The system includes real-time data ingestion, processing, storage, analytics, and a chatbot interface for user interaction.
+It's a glimpse of the technical skills we developed during engineering years at ENSAB.
+enjoy!
 
 ![Project Architecture](./Architecture.png)
 
