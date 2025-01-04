@@ -123,8 +123,8 @@ Check `/dags/kafka_stream.py` for implementation details.
 - Snowflake data warehouse implementation
 - Tableau dashboards for real-time monitoring
 - Connection details in documentation
-- ![DataWarehouse](.DataWarehouse-Schema.png)
-- ![Real Time Visualisation](.Tableau-Dashboard.png)
+- ![DataWarehouse](./DataWarehouse-Schema.png)
+- ![Real Time Visualisation](./Tableau-Dashboard.png)
 
 ## Machine Learning Models
 Models implemented:
@@ -138,9 +138,9 @@ Models implemented:
 - Custom training data and model weights in `chatbot/finetuned_models/`
 
 ## Screenshots
-![Interface Screenshot](.interface-1.png)
-![Interface Screenshot](.interface-1-prediction.png)
-![Chatbot Interface Screenshot](.interface-2.png)
+![Interface Screenshot](./interface-1.png)
+![Interface Screenshot](./interface-1-prediction.png)
+![Chatbot Interface Screenshot](./interface-2.png)
 
 ## Contributing
 1. Fork the repository
