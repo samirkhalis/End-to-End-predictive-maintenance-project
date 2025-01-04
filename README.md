@@ -1,8 +1,13 @@
 # ENSAB Academic Project : Industrial Machine Monitoring and Predictive Maintenance System using Big Data Tools and Machine Learning
 
-A comprehensive data pipeline and analytics system for industrial machine monitoring, predictive maintenance, and real-time data processing. The system includes real-time data ingestion, processing, storage, analytics, and a chatbot interface for user interaction.
+This Academic project is an end to end real time pipeline for industrial machine monitoring, predictive maintenance, and real-time data processing. The system includes real-time data ingestion, processing, storage, analytics, and a chatbot interface for user interaction.
 
 ![Project Architecture](./Architecture.png)
+
+## Screenshots
+![Interface Screenshot](./interface-1.png)
+![Interface Screenshot](./inetrface-1-prediction.png)
+![Chatbot Interface Screenshot](./interface-2.png)
 
 ## Table of Contents
 - [Features](#features)
@@ -136,11 +141,6 @@ Models implemented:
 - Fine-tuned language models for domain-specific queries
 - Integrated with Streamlit interface
 - Custom training data and model weights in `chatbot/finetuned_models/`
-
-## Screenshots
-![Interface Screenshot](./interface-1.png)
-![Interface Screenshot](./inetrface-1-prediction.png)
-![Chatbot Interface Screenshot](./interface-2.png)
 
 ## Contributing
 1. Fork the repository
