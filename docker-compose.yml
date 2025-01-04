@@ -51,10 +51,10 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-    #   KAFKA_OPTS: "-javaagent:/opt/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar=9404:/opt/jmx-exporter/prom-jmx-agent-config.yml"
-    # volumes:
-    #   - ./jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar:/opt/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar
-    #   - ./jmx-exporter/prom-jmx-agent-config.yml:/opt/jmx-exporter/prom-jmx-agent-config.yml
+      KAFKA_OPTS: "-javaagent:/opt/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar=9404:/opt/jmx-exporter/prom-jmx-agent-config.yml"
+    volumes:
+      - ./jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar:/opt/jmx-exporter/jmx_prometheus_javaagent-0.20.0.jar
+      - ./jmx-exporter/prom-jmx-agent-config.yml:/opt/jmx-exporter/prom-jmx-agent-config.yml
     networks:
       - confluent
     healthcheck:
@@ -119,7 +119,7 @@ services:
 
   webserver:
     image: apache/airflow:2.6.0-python3.9
-    command: webserver
+    command: webserver && pip install apache-airflow-providers-apache-cassandra
     entrypoint: ['/opt/airflow/script/entrypoint.sh']
     depends_on:
       - postgres
@@ -139,6 +139,8 @@ services:
       - ./dags:/opt/airflow/dags
       - C:/Users/Zahra/Desktop/ProjectBigDataAnalytics/script/entrypoint.sh:/opt/airflow/script/entrypoint.sh
       - C:/Users/Zahra/Desktop/ProjectBigDataAnalytics/requirements.txt:/opt/airflow/requirements.txt
+      - ./scripts/Populate_Snowflake_DW.py:/opt/Populate_Snowflake_DW.py
+      - ./models:/tmp/models
 
     ports:
       - "8080:8080"
@@ -159,6 +161,7 @@ services:
       - ./dags:/opt/airflow/dags
       - ./script/entrypoint.sh:/opt/airflow/script/entrypoint.sh
       - ./requirements.txt:/opt/airflow/requirements.txt
+      - ./models:/tmp/models
     environment:
       - LOAD_EX=n
       - EXECUTOR=Sequential
@@ -186,21 +189,33 @@ services:
 
   spark-master:
     image: bitnami/spark:latest
-    command: bin/spark-class org.apache.spark.deploy.master.Master
+    # command: bin/spark-class org.apache.spark.deploy.master.Master
+    command: bash -c "pip install cassandra-driver pyspark snowflake-connector-python && bin/spark-class org.apache.spark.deploy.master.Master"
+    #command: bash -c "pip install cassandra-driver pyspark && curl -L https://repo1.maven.org/maven2/com/datastax/spark/spark-cassandra-connector_2.12/3.5.0/spark-cassandra-connector_2.12-3.5.0.jar -o /opt/bitnami/spark/jars/spark-cassandra-connector.jar && bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077"    
+    
     ports:
       - "9090:8080"
       - "7077:7077"
     environment:
       - JAVA_HOME=/opt/bitnami/java
     volumes:
-      - ./scripts:/app/scripts
+      - ./scripts:/app
+      - ./EDA:/app/scripts
+      - ./data:/app/scripts/data
+      - ./trained_models:/opt/spark/trained_models
+      - ./predictive_maintenance.csv:/opt/spark/predictive_maintenance.csv
+      # - ./Snowflake_jars/snowflake-jdbc-3.20.0.jar:/opt/bitnami/spark/jars/snowflake-jdbc-3.20.0.jar
+      # - ./Snowflake_jars/spark-cassandra-connector_2.12-3.3.0.jar:/opt/bitnami/spark/jars/spark-cassandra-connector_2.12-3.3.0.jar
+      # - ./Snowflake_jars/spark-snowflake_2.13-2.12.0-spark_3.3.jar:/opt/bitnami/spark/jars/spark-snowflake_2.13-2.12.0-spark_3.3.jar
     networks:
       - confluent
     
 
   spark-worker:
     image: bitnami/spark:latest
-    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    # command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    command: bash -c "pip install cassandra-driver pyspark snowflake-connector-python && bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077"
+    #command: bash -c "pip install cassandra-driver pyspark && wget https://repo1.maven.org/maven2/com/datastax/spark/spark-cassandra-connector_2.12/3.5.0/spark-cassandra-connector_2.12-3.5.0.jar -P /opt/bitnami/spark/jars/ && bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077"
     depends_on:
       - spark-master
     environment:
@@ -210,11 +225,77 @@ services:
       SPARK_MASTER_URL: spark://spark-master:7077
       JAVA_HOME: /opt/bitnami/java  
     volumes:
-      - ./scripts:/app/scripts
+      - ./scripts:/app/
+      - ./data:/app/scripts/data
+      - ./EDA:/app/scripts
+      - ./predictive_maintenance.csv:/opt/spark/predictive_maintenance.csv
+
+      # - ./Snowflake_jars/snowflake-jdbc-3.20.0.jar:/opt/bitnami/spark/jars/snowflake-jdbc-3.20.0.jar
+      # - ./Snowflake_jars/spark-cassandra-connector_2.12-3.3.0.jar:/opt/bitnami/spark/jars/spark-cassandra-connector_2.12-3.3.0.jar
+      # - ./Snowflake_jars/spark-snowflake_2.13-2.12.0-spark_3.3.jar:/opt/bitnami/spark/jars/spark-snowflake_2.13-2.12.0-spark_3.3.jar
     networks:
       - confluent
 
-  
+  spark-worker-2:
+    image: bitnami/spark:latest
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    #command: bash -c "pip install cassandra-driver pyspark && bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077"
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 4g   #the minimum for the worker memory is 1g
+      SPARK_MASTER_URL: spark://spark-master:7077
+      JAVA_HOME: /opt/bitnami/java  
+    volumes:
+      - ./scripts:/app/
+      - ./data:/app/scripts/data
+      - ./EDA:/app/scripts
+      - ./predictive_maintenance.csv:/opt/spark/predictive_maintenance.csv
+      # - ./Snowflake_jars/snowflake-jdbc-3.20.0.jar:/opt/bitnami/spark/jars/snowflake-jdbc-3.20.0.jar
+      # - ./Snowflake_jars/spark-cassandra-connector_2.12-3.3.0.jar:/opt/bitnami/spark/jars/spark-cassandra-connector_2.12-3.3.0.jar
+      # - ./Snowflake_jars/spark-snowflake_2.13-2.12.0-spark_3.3.jar:/opt/bitnami/spark/jars/spark-snowflake_2.13-2.12.0-spark_3.3.jar
+    networks:
+      - confluent
+
+  # separate service to submit the Spark job
+  spark-submit:
+    image: bitnami/spark:latest
+    depends_on:
+      - spark-master
+      - broker
+      - cassandra_db
+    volumes:
+      - ./scripts:/app/project
+    working_dir: /app/project
+    command: 
+        bash -c "
+        pip install cassandra-driver pyspark && 
+        spark-submit 
+        --master spark://spark-master:7077 
+        --packages com.datastax.spark:spark-cassandra-connector_2.12:3.5.1,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.1 
+        /app/project/spark_stream.py"
+        
+    networks:
+      - confluent
+
+  cassandra_db:
+    image: cassandra:latest
+    container_name: cassandra
+    hostname: cassandra
+    ports:
+      - "9042:9042"
+    environment:
+      - MAX_HEAP_SIZE=512M
+      - HEAP_NEWSIZE=100M
+      - CASSANDRA_USERNAME=cassandra
+      - CASSANDRA_PASSWORD=cassandra
+    networks:
+      - confluent
+
+
+
 
 volumes:
   jmx-exporter:
